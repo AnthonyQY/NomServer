@@ -1,0 +1,7 @@
+﻿services:
+  nomnomserver:
+    image: nomnomserver
+    build:
+      context: .
+      dockerfile: Dockerfile
+
