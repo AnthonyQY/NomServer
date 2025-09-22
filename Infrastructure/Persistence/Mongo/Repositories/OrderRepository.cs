@@ -4,9 +4,9 @@ using NomServer.Infrastructure.Persistence.Mongo.Models;
 
 namespace NomServer.Infrastructure.Persistence.Mongo.Repositories;
 
-public class OrderRepository(IMongoDatabase database) : IOrderRepository
+public class OrderRepository(AppSettings appSettings, IMongoDatabase database) : IOrderRepository
 {
-    private readonly IMongoCollection<OrderDocument> _collection = database.GetCollection<OrderDocument>("Orders");
+    private readonly IMongoCollection<OrderDocument> _collection = database.GetCollection<OrderDocument>(appSettings.MongoDbSettings.OrderCollectionName);
 
     public async Task<OrderDocument?> GetByIdAsync(string id)
     {

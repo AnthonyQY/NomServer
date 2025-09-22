@@ -4,9 +4,9 @@ using NomServer.Infrastructure.Persistence.Mongo.Models;
 
 namespace NomServer.Infrastructure.Persistence.Mongo.Repositories;
 
-public class UserRepository(IMongoDatabase database) : IUserRepository
+public class UserRepository(AppSettings appSettings, IMongoDatabase database) : IUserRepository
 {
-    private readonly IMongoCollection<UserDocument> _collection = database.GetCollection<UserDocument>("Users");
+    private readonly IMongoCollection<UserDocument> _collection = database.GetCollection<UserDocument>(appSettings.MongoDbSettings.OrderCollectionName);
 
     public async Task<bool> ExistsByNameAsync(string name)
     {

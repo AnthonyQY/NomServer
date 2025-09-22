@@ -4,9 +4,9 @@ using NomServer.Infrastructure.Persistence.Mongo.Models;
 
 namespace NomServer.Infrastructure.Persistence.Mongo.Repositories;
 
-public class MenuItemRepository(IMongoDatabase database) : IMenuItemRepository
+public class MenuItemRepository(AppSettings appSettings, IMongoDatabase database) : IMenuItemRepository
 {
-    private readonly IMongoCollection<MenuItemDocument> _collection = database.GetCollection<MenuItemDocument>("MenuItems");
+    private readonly IMongoCollection<MenuItemDocument> _collection = database.GetCollection<MenuItemDocument>(appSettings.MongoDbSettings.MenuItemCollectionName);
 
     public async Task<bool> ExistsByNameAsync(string name)
     {
