@@ -13,9 +13,20 @@ namespace NomServer;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+
+        // Check for existing instances via mDNS before proceeding
+        var mdnsSettings = builder.Configuration.GetSection("Mdns");
+        var serviceType = mdnsSettings["ServiceType"];
+        
+        if (await CheckForExistingInstance(serviceType))
+        {
+            Console.WriteLine($"Another instance of the service '{serviceType}' is already running. Terminating startup.");
+            Environment.Exit(1);
+            return;
+        }
 
         // DI
         
@@ -104,11 +115,10 @@ public class Program
 
         app.MapControllers();
         
-        // MDNS
-        var mdnsSettings = builder.Configuration.GetSection("Mdns");
+        // MDNS - Start advertising this instance
         var mdnsService = new MulticastService();
         var serviceDiscovery = new ServiceDiscovery(mdnsService);
-        var nomnomServiceProfile = new ServiceProfile(mdnsSettings["InstanceName"], mdnsSettings["ServiceType"], ushort.Parse(mdnsSettings["Port"]!));
+        var nomnomServiceProfile = new ServiceProfile(mdnsSettings["InstanceName"], serviceType, ushort.Parse(mdnsSettings["Port"]!));
         
         mdnsService.Start();
         serviceDiscovery.Advertise(nomnomServiceProfile);
@@ -123,5 +133,42 @@ public class Program
         
         // Finish
         app.Run();
+    }
+
+    private static async Task<bool> CheckForExistingInstance(string serviceType)
+    {
+        using var mdnsService = new MulticastService();
+        using var serviceDiscovery = new ServiceDiscovery(mdnsService);
+        
+        var taskCompletionSource = new TaskCompletionSource<bool>();
+        
+        serviceDiscovery.ServiceInstanceDiscovered += (_, e) =>
+        {
+            if (e.ServiceInstanceName.ToString().Contains(serviceType))
+            {
+                taskCompletionSource.TrySetResult(true);
+            }
+        };
+
+        try
+        {
+            mdnsService.Start();
+            
+            serviceDiscovery.QueryServiceInstances(serviceType);
+
+            using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(3));
+            cancellationTokenSource.Token.Register(() => taskCompletionSource.TrySetResult(false));
+            
+            return await taskCompletionSource.Task;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error checking for existing instances: {ex.Message}");
+            return false;
+        }
+        finally
+        {
+            mdnsService.Stop();
+        }
     }
 }
