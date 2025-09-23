@@ -29,6 +29,6 @@ public class OrderDocument
     public int Status { get; set; }
     
     [BsonRequired]
-    [BsonElement("MenuItemDocuments")]
-    public List<MenuItemDocument> MenuItemDocuments { get; set; }
+    [BsonElement("MenuItems")]
+    public List<MenuItemDocument> MenuItems { get; set; }
 }

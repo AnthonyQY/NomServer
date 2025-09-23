@@ -9,6 +9,6 @@ public interface IUserRepository
     Task<UserDocument?> GetByIdAsync(string id);
     Task<List<UserDocument>> GetAllAsync();
     Task<UserDocument?> AddAsync(UserDocument user);
-    Task<UserDocument?> UpdateAsync(UserDocument user);
+    Task<UserDocument?> UpdateAsync(string id, UserDocument user);
     Task<UserDocument?> DeleteAsync(string id);
 }

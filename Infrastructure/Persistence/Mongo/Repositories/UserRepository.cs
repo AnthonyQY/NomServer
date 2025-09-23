@@ -6,7 +6,7 @@ namespace NomServer.Infrastructure.Persistence.Mongo.Repositories;
 
 public class UserRepository(AppSettings appSettings, IMongoDatabase database) : IUserRepository
 {
-    private readonly IMongoCollection<UserDocument> _collection = database.GetCollection<UserDocument>(appSettings.MongoDbSettings.OrderCollectionName);
+    private readonly IMongoCollection<UserDocument> _collection = database.GetCollection<UserDocument>(appSettings.MongoDbSettings.UserCollectionName);
 
     public async Task<bool> ExistsByNameAsync(string name)
     {
@@ -34,8 +34,9 @@ public class UserRepository(AppSettings appSettings, IMongoDatabase database) : 
         return user;
     }
 
-    public async Task<UserDocument?> UpdateAsync(UserDocument user)
+    public async Task<UserDocument?> UpdateAsync(string id, UserDocument user)
     {
+        user.Id = id;
         return await _collection.FindOneAndReplaceAsync(
             x => x.Id == user.Id,
             user,

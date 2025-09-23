@@ -32,10 +32,10 @@ public class UserService(IUserRepository repository, IMapper mapper) : IUserServ
         return mapper.Map<User>(doc);
     }
 
-    public async Task<User?> UpdateAsync(User user)
+    public async Task<User?> UpdateAsync(string id, User user)
     {
         var doc = mapper.Map<UserDocument>(user);
-        await repository.UpdateAsync(doc);
+        await repository.UpdateAsync(id, doc);
         return mapper.Map<User>(doc);
     }
 

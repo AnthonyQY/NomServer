@@ -10,7 +10,7 @@ namespace NomServer.Application.Services;
 
 public class AuthService(IUserService userService, ITokenService tokenService) : IAuthService
 {
-    public async Task<AuthBundle> RegisterAsync(string name)
+    public async Task<AuthBundle> RegisterAsync(string name, IEnumerable<string> roles)
     {
         if (await userService.ExistsByNameAsync(name))
         {
@@ -30,7 +30,7 @@ public class AuthService(IUserService userService, ITokenService tokenService) :
 
         return new AuthBundle
         {
-            JwtToken = tokenService.GenerateToken(name, ["user"]),
+            JwtToken = tokenService.GenerateToken(name, roles.ToList()),
             RecoveryCode = recoveryCode
         };
     }
@@ -50,7 +50,7 @@ public class AuthService(IUserService userService, ITokenService tokenService) :
 
         user.RecoveryCodeHash = newHash;
         user.RecoveryCodeSalt = Convert.ToBase64String(newSalt);
-        await userService.UpdateAsync(user);
+        await userService.UpdateAsync(user.Id, user);
 
         return new AuthBundle
         {

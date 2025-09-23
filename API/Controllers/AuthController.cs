@@ -11,14 +11,14 @@ namespace NomServer.API.Controllers;
 public class AuthController(IAuthService authService) : ControllerBase
 {
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterDto request)
+    public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
     {
-        var authBundle = await authService.RegisterAsync(request.Name);
+        var authBundle = await authService.RegisterAsync(request.Name, ["user", "admin"]);
         return Ok(authBundle);
     }
 
     [HttpPost("recover")]
-    public async Task<IActionResult> Recover([FromBody] RecoverDto request)
+    public async Task<IActionResult> Recover([FromBody] RecoverRequestDto request)
     {
         var authBundle = await authService.RecoverAsync(request.Name, request.RecoveryCode);
         return Ok(authBundle);

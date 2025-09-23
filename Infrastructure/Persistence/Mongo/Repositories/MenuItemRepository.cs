@@ -24,16 +24,19 @@ public class MenuItemRepository(AppSettings appSettings, IMongoDatabase database
         return await (await _collection.FindAsync(_ => true)).ToListAsync();
     }
     
-    public async Task<MenuItemDocument> AddAsync(MenuItemDocument item)
+    public async Task<MenuItemDocument> AddAsync(MenuItemDocument menuItemDocument)
     {
-        await _collection.InsertOneAsync(item);
-        return item;
+        await _collection.InsertOneAsync(menuItemDocument);
+        return menuItemDocument;
     }
 
-    public async Task<MenuItemDocument?> UpdateAsync(string id, MenuItemDocument item)
+    public async Task<MenuItemDocument?> UpdateAsync(string id, MenuItemDocument menuItemDocument)
     {
-        var result = await _collection.ReplaceOneAsync(x => x.Id == id, item);
-        return result.ModifiedCount > 0 ? item : null;
+        menuItemDocument.Id = id;
+        return await _collection.FindOneAndReplaceAsync(
+            mid => mid.Id == id, 
+            menuItemDocument, 
+            new FindOneAndReplaceOptions<MenuItemDocument> { ReturnDocument = ReturnDocument.After });
     }
 
     public async Task<MenuItemDocument?> DeleteAsync(string id)
