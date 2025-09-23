@@ -20,7 +20,7 @@ public class TokenService(AppSettings appSettings) : ITokenService
             audience: appSettings.Jwt.Audience,
             claims: claims,
             notBefore: DateTime.UtcNow,
-            expires: DateTime.UtcNow.AddHours(1)
+            expires: null
         );
         
         foreach (var role in roles)
