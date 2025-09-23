@@ -1,7 +1,6 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 using Konscious.Security.Cryptography;
-using NomServer.Application.DTOs;
 using NomServer.Application.Interfaces;
 using NomServer.Application.Models;
 using NomServer.Core.Entities;

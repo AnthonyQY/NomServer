@@ -1,5 +1,7 @@
 ﻿using NomServer.Infrastructure.Persistence.Mongo.Models;
 
+namespace NomServer.Infrastructure.Persistence.Mongo.Interfaces;
+
 public interface IMenuItemRepository
 {
     Task<bool> ExistsByNameAsync(string name);

@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using NomServer.Application.DTOs;
+using NomServer.Application.DTOs.Requests;
 using NomServer.Application.DTOs.Responses;
 using NomServer.Application.Interfaces;
 using NomServer.Core.Entities;

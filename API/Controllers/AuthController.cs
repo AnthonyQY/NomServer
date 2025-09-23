@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity.Data;
-using Microsoft.AspNetCore.Mvc;
-using NomServer.Application.DTOs;
+﻿using Microsoft.AspNetCore.Mvc;
+using NomServer.Application.DTOs.Requests;
 using NomServer.Application.Interfaces;
-using NomServer.Application.Services;
 
 namespace NomServer.API.Controllers;
 

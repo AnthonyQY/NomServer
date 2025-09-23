@@ -1,13 +1,13 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
 using Makaretu.Dns;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using NomServer.Application.Interfaces;
 using NomServer.Application.Services;
 using NomServer.Infrastructure.Persistence.Mongo.Interfaces;
 using NomServer.Infrastructure.Persistence.Mongo.Repositories;
-using NomServer.Mappings;
 
 namespace NomServer;
 
@@ -20,8 +20,8 @@ public class Program
         // Check for existing instances via mDNS before proceeding
         var mdnsSettings = builder.Configuration.GetSection("Mdns");
         var serviceType = mdnsSettings["ServiceType"];
-        
-        if (await CheckForExistingInstance(serviceType))
+
+        if (await CheckForExistingInstance(serviceType!))
         {
             Console.WriteLine($"Another instance of the service '{serviceType}' is already running. Terminating startup.");
             Environment.Exit(1);
@@ -73,7 +73,7 @@ public class Program
                     ValidIssuer = jwtSettings["Issuer"],
                     ValidAudience = jwtSettings["Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(key),
-                    RoleClaimType = System.Security.Claims.ClaimTypes.Role
+                    RoleClaimType = ClaimTypes.Role
                 };
             });
 
@@ -132,7 +132,7 @@ public class Program
         });
         
         // Finish
-        app.Run();
+        await app.RunAsync();
     }
 
     private static async Task<bool> CheckForExistingInstance(string serviceType)
