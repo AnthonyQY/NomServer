@@ -25,6 +25,7 @@ public class ApplicationSettings
 {
     public int HttpPort { get; set; }
     public int HttpsPort { get; set; }
+    public string Key { get; set; }
 }
 
 public class JwtSettings

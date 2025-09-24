@@ -13,6 +13,7 @@ namespace NomServer;
 
 public class Program
 {
+    private const string PlaceholderKeyValue = "PlaceholderReplaceMe";
     public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
@@ -55,10 +56,29 @@ public class Program
         // Automapper
         builder.Services.AddAutoMapper(_ => { }, typeof(Program));
 
+        using var loggerFactory = LoggerFactory.Create(logging =>
+        {
+            logging.AddConsole();
+            logging.AddDebug();
+        });
+        var logger = loggerFactory.CreateLogger<Program>();
 
+        // Setup auth
         var jwtSettings = builder.Configuration.GetSection("Jwt");
-        var key = Encoding.UTF8.GetBytes(jwtSettings["Key"] ?? throw new NullReferenceException());
+        if (jwtSettings["Key"] == PlaceholderKeyValue)
+        {
+            if (builder.Environment.IsDevelopment())
+                logger.LogWarning(
+                    "Placeholder key detected in development. Replace Jwt__Key in environment or appsettings.json.");
+            if (builder.Environment.IsProduction())
+            {
+                logger.LogError(
+                    "Placeholder key detected in production. Replace Jwt__Key in environment or appsettings.json.");
+                throw new Exception("Startup aborted due to placeholder JWT key in production.");
+            }
+        }
 
+        var key = Encoding.UTF8.GetBytes(jwtSettings["Key"] ?? throw new NullReferenceException());
         builder.Services.AddAuthorization();
 
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -77,11 +97,25 @@ public class Program
                 };
             });
 
+        // Setup controllers
+        
         builder.Services.AddOpenApi();
         builder.Services.AddControllers();
         
         // Configure external port
         var applicationSettings = builder.Configuration.GetSection("Application");
+        if (applicationSettings["Key"] == PlaceholderKeyValue)
+        {
+            if (builder.Environment.IsDevelopment())
+                logger.LogWarning(
+                    "Placeholder key detected in development. Replace Application__Key in environment or appsettings.json.");
+            if (builder.Environment.IsProduction())
+            {
+                logger.LogError(
+                    "Placeholder key detected in production. Replace Application__KKey in environment or appsettings.json.");
+                throw new Exception("Startup aborted due to placeholder JWT key in production.");
+            }
+        }
         var httpPort = ushort.Parse(applicationSettings["HttpPort"]!);
         var httpsPort = ushort.Parse(applicationSettings["HttpsPort"]!);
         builder.WebHost.ConfigureKestrel(options =>
